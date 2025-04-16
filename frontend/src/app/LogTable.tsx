@@ -24,14 +24,17 @@ type LLMLog = {
   start_time?: number; // Add start_time (optional for backward compatibility)
 };
 
-export default function LogTable() {
+export default function LogTable({ filename }: { filename: string }) {
   const [logs, setLogs] = useState<LLMLog[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [openIndex, setOpenIndex] = useState<number | null>(null);
 
   useEffect(() => {
-    fetch("/api/logs")
+    if (!filename) return;
+    setLoading(true);
+    setError(null);
+    fetch(`/api/logs?filename=${encodeURIComponent(filename)}`)
       .then((res) => {
         if (!res.ok) throw new Error("Failed to fetch logs");
         return res.json();
@@ -44,7 +47,7 @@ export default function LogTable() {
         setError(err.message);
         setLoading(false);
       });
-  }, []);
+  }, [filename]);
 
   return (
     <div className="p-4">
